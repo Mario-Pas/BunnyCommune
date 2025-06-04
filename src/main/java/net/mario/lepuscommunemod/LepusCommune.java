@@ -1,6 +1,13 @@
 package net.mario.lepuscommunemod;
 
 import com.mojang.logging.LogUtils;
+import net.mario.lepuscommunemod.entity.ModEntities;
+import net.mario.lepuscommunemod.entity.custom.BunnyEntity;
+import net.mario.lepuscommunemod.item.ModCreativeModeTabs;
+import net.mario.lepuscommunemod.item.ModItems;
+import net.mario.lepuscommunemod.entity.client.BunnyRenderer;
+import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -55,16 +62,12 @@ public class LepusCommune
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
-
-//        // Register the Deferred Register to the mod event bus so blocks get registered
-//        BLOCKS.register(modEventBus);
-//        // Register the Deferred Register to the mod event bus so items get registered
-//        ITEMS.register(modEventBus);
-//        // Register the Deferred Register to the mod event bus so tabs get registered
-//        CREATIVE_MODE_TABS.register(modEventBus);
-
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
+
+        ModCreativeModeTabs.register(modEventBus);
+        ModEntities.register(modEventBus);
+        ModItems.register(modEventBus);
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
@@ -89,8 +92,9 @@ public class LepusCommune
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event)
     {
-//        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS)
-//            event.accept(EXAMPLE_BLOCK_ITEM);
+        if (event.getTabKey() == CreativeModeTabs.COMBAT) {
+          event.accept(ModItems.BUNNY_STAFF);
+        }
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
@@ -106,11 +110,9 @@ public class LepusCommune
     public static class ClientModEvents
     {
         @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event)
-        {
-//            // Some client setup code
-//            LOGGER.info("HELLO FROM CLIENT SETUP");
-//            LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+        public static void onClientSetup(FMLClientSetupEvent event) {
+            EntityRenderers.register(ModEntities.COMMUNE_BUNNY.get(), BunnyRenderer::new);
+
         }
     }
 }
